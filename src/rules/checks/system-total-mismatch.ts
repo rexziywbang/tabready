@@ -1,0 +1,39 @@
+import {
+  EPSILON,
+  FindingDraft,
+  numericValue,
+  RULES_VERSION,
+  RuleSystem,
+} from "../types";
+
+export function checkSystemTotalMismatch(
+  systems: RuleSystem[],
+): FindingDraft[] {
+  const findings: FindingDraft[] = [];
+  for (const system of systems) {
+    if (system.designTotalCfm === null || system.designTotalCfm <= 0) continue;
+    const measuredTotal = system.outlets.reduce((sum, outlet) => {
+      const value = numericValue(outlet.finalCfm);
+      return value !== null && value >= 0 ? sum + value : sum;
+    }, 0);
+    const deviation =
+      (Math.abs(measuredTotal - system.designTotalCfm) /
+        system.designTotalCfm) *
+      100;
+    if (deviation <= 5 + EPSILON) continue;
+    findings.push({
+      ruleId: "system_total_mismatch",
+      ruleVersion: RULES_VERSION,
+      severity: "warning",
+      outletId: null,
+      airSystemId: system.id,
+      message: `${system.unitId}: measured total ${Math.round(measuredTotal)} vs design total ${Math.round(system.designTotalCfm)} (${deviation.toFixed(1)}% off)`,
+      inputs: {
+        unit_id: system.unitId,
+        measured_total_cfm: measuredTotal,
+        design_total_cfm: system.designTotalCfm,
+      },
+    });
+  }
+  return findings;
+}
