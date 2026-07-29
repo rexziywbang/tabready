@@ -5,11 +5,10 @@ import type {
   Outlet,
   Project,
 } from "@/src/db/schema";
+import { numericValue } from "@/src/rules/types";
 
 function numberValue(value: string | null): number | null {
-  if (value === null || value === "") return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return numericValue(value);
 }
 
 function percent(

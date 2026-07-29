@@ -531,6 +531,11 @@ textarea::placeholder {
   padding: 8px 13px;
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .button-primary {
   background: var(--accent);
   border-color: var(--accent);
@@ -539,6 +544,10 @@ textarea::placeholder {
 
 .button-primary:hover {
   background: var(--accent-dark);
+}
+
+.button-primary:disabled:hover {
+  background: var(--accent);
 }
 
 .create-panel .button-primary {
@@ -561,6 +570,11 @@ textarea::placeholder {
 .button-secondary:hover {
   background: var(--surface-subtle);
   border-color: #aebfbc;
+}
+
+.button-secondary:disabled:hover {
+  background: var(--surface);
+  border-color: var(--line-strong);
 }
 
 .full {
@@ -1551,13 +1565,18 @@ textarea::placeholder {
   border-radius: 8px;
   display: grid;
   gap: 11px;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   padding: 13px;
 }
 
 .sheet-list > label.selected {
   background: var(--accent-soft);
   border-color: #83b6ad;
+}
+
+.sheet-list > label[aria-disabled="true"] {
+  background: #f7f8f8;
+  opacity: 0.68;
 }
 
 .sheet-list input {
@@ -1576,14 +1595,53 @@ textarea::placeholder {
   width: 34px;
 }
 
-.sheet-list label > span:last-child {
+.sheet-list label > span:nth-child(3) {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .sheet-list label small {
   color: var(--muted);
   font-weight: 500;
+}
+
+.sheet-status {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
+.sheet-status.included {
+  background: var(--success-soft);
+  border-color: #c2dfd2;
+  color: var(--success);
+}
+
+.sheet-status.skipped {
+  background: #f4f5f5;
+  color: var(--muted);
+}
+
+.scope-note {
+  background: #f4f7f6;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+  margin-top: 14px;
+  max-width: 690px;
+  padding: 10px 12px;
+}
+
+.scope-note.preview-note {
+  margin-bottom: 12px;
+  max-width: none;
 }
 
 .wizard-footer {
@@ -2297,13 +2355,21 @@ textarea::placeholder {
   }
 
   .wizard-progress {
-    display: flex;
-    overflow-x: auto;
+    display: grid;
+    gap: 8px 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
   }
 
   .wizard-progress li {
-    flex: 0 0 90px;
-    grid-template-columns: 26px 1fr;
+    gap: 6px;
+    grid-template-columns: 26px minmax(0, 1fr);
+    min-height: 36px;
+  }
+
+  .wizard-progress li > small {
+    font-size: 9px;
+    line-height: 1.15;
   }
 
   .wizard-progress li::after {

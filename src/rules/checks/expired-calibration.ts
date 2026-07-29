@@ -1,7 +1,8 @@
 import {
   addMonths,
-  cleanText,
+  findRegisteredInstrument,
   FindingDraft,
+  isFieldAvailable,
   parseDateOnly,
   RULES_VERSION,
   RuleInstrument,
@@ -13,16 +14,17 @@ export function checkExpiredCalibration(
   instruments: RuleInstrument[],
   today: Date,
 ): FindingDraft[] {
-  const registry = new Map(
-    instruments.map((instrument) => [
-      cleanText(instrument.name).toLocaleLowerCase(),
-      instrument,
-    ]),
-  );
   const findings: FindingDraft[] = [];
   for (const outlet of outlets) {
-    const instrument = registry.get(
-      cleanText(outlet.instrumentName).toLocaleLowerCase(),
+    if (
+      !isFieldAvailable(outlet, "instrument_name") ||
+      !isFieldAvailable(outlet, "test_date")
+    ) {
+      continue;
+    }
+    const instrument = findRegisteredInstrument(
+      outlet.instrumentName,
+      instruments,
     );
     if (!instrument) continue;
     const calibrated = parseDateOnly(instrument.calibrationDate);
@@ -31,7 +33,8 @@ export function checkExpiredCalibration(
       calibrated,
       instrument.calibrationIntervalMonths,
     );
-    const comparisonDate = parseDateOnly(outlet.testDate) ?? today;
+    const comparisonDate = parseDateOnly(outlet.testDate);
+    if (!comparisonDate) continue;
     if (expires.getTime() >= comparisonDate.getTime()) continue;
     const expirationDate = expires.toISOString().slice(0, 10);
     findings.push({

@@ -12,9 +12,15 @@ export function checkSystemTotalMismatch(
   const findings: FindingDraft[] = [];
   for (const system of systems) {
     if (system.designTotalCfm === null || system.designTotalCfm <= 0) continue;
+    const complete = system.outlets.length > 0 && system.outlets.every((outlet) => {
+      const design = numericValue(outlet.designCfm);
+      const final = numericValue(outlet.finalCfm);
+      return design !== null && design > 0 && final !== null && final > 0;
+    });
+    if (!complete) continue;
     const measuredTotal = system.outlets.reduce((sum, outlet) => {
       const value = numericValue(outlet.finalCfm);
-      return value !== null && value >= 0 ? sum + value : sum;
+      return value !== null ? sum + value : sum;
     }, 0);
     const deviation =
       (Math.abs(measuredTotal - system.designTotalCfm) /
@@ -32,6 +38,7 @@ export function checkSystemTotalMismatch(
         unit_id: system.unitId,
         measured_total_cfm: measuredTotal,
         design_total_cfm: system.designTotalCfm,
+        tolerance_pct: 5,
       },
     });
   }

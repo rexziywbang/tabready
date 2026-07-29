@@ -1,15 +1,22 @@
 import {
   FindingDraft,
+  isExplicitNonReading,
   numericValue,
   RawValue,
+  remarksAllowZero,
   RULES_VERSION,
   RuleOutlet,
 } from "../types";
 
-function invalid(value: RawValue): boolean {
+function invalid(value: RawValue, outlet: RuleOutlet): boolean {
   if (value === null || value === undefined || value === "") return false;
+  if (isExplicitNonReading(value)) return false;
   const number = numericValue(value);
-  return number === null || number <= 0;
+  return (
+    number === null ||
+    number < 0 ||
+    (number === 0 && !remarksAllowZero(outlet.remarks))
+  );
 }
 
 export function checkInvalidValue(outlets: RuleOutlet[]): FindingDraft[] {
@@ -20,7 +27,7 @@ export function checkInvalidValue(outlets: RuleOutlet[]): FindingDraft[] {
       ["final_cfm", outlet.finalCfm],
     ];
     for (const [field, value] of values) {
-      if (!invalid(value)) continue;
+      if (!invalid(value, outlet)) continue;
       findings.push({
         ruleId: "invalid_value",
         ruleVersion: RULES_VERSION,

@@ -13,9 +13,19 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    if (!file.name.toLocaleLowerCase().endsWith(".xlsx")) {
+    const lowerName = file.name.toLocaleLowerCase();
+    if (lowerName.endsWith(".pdf")) {
       return NextResponse.json(
-        { error: "TABReady accepts .xlsx workbooks for this demo." },
+        {
+          error:
+            "A PDF is a flattened report and cannot preserve reliable source cells. Upload the original .xlsx workbook instead.",
+        },
+        { status: 400 },
+      );
+    }
+    if (!lowerName.endsWith(".xlsx")) {
+      return NextResponse.json(
+        { error: "TABReady accepts original .xlsx workbooks." },
         { status: 400 },
       );
     }
