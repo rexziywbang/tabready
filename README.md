@@ -44,11 +44,12 @@ Open [http://localhost:3000](http://localhost:3000) after `pnpm demo`.
 1. Open the pre-seeded **Riverside Medical Office Building** fictional project.
 2. Choose **Import data**.
 3. Select `fixtures/riverside_medical.xlsx`.
-4. Keep **All outlet sheets** selected. Confirm the auto-detected header row.
-5. Review the suggested column mapping, then preview and commit all 60 rows.
+4. Keep **All compatible airside outlet sheets** selected. For each included
+   worksheet, confirm its detected header row and suggested mapping.
+5. Preview the combined result, then commit all 60 rows.
 6. Review the predictable exception queue (roughly 19 findings), including
    expired calibration flags for Flow Hood FH-2 and a system total mismatch for
-   AHU-2.
+   AHU-1.
 7. Open one warning and choose **Acknowledge warning**.
 8. Open another finding, enter a resolution note and reviewer name, then
    resolve it.
@@ -65,8 +66,29 @@ The generated workbook has 60 outlet rows across `AHU-1 Outlets` and
 `AHU-2 Outlets`. It contains exactly the demonstration conditions requested:
 two missing instruments, four uses of expired Flow Hood FH-2, one duplicated
 AHU-2 outlet ID, three missing test dates, two missing technicians, one unknown
-instrument, three readings outside tolerance, an AHU-2 total about 8% below
-design, and one zero reading. All other rows are clean.
+instrument, three readings outside tolerance, a complete AHU-1 total about 6%
+below design, and an incomplete AHU-2 set with one zero reading. The incomplete
+AHU-2 set does not receive a redundant system-total flag. All other rows are
+clean.
+
+## Real-workbook safeguards
+
+- **All compatible** imports only sheets with recognizable airside
+  outlet/CFM columns. Drawings, covers, hydronic schedules, fan summaries, and
+  certificates are shown but skipped.
+- Each included worksheet keeps its own confirmed header and mapping. Two-level
+  grouped headings, repeated headers, subtotal rows, merged unit labels, and
+  worksheet-title unit IDs are handled without becoming fake outlets.
+- `NOTE`, `NA`, `NG`, `NTS`, `OFF`, and dash markers remain documented
+  non-readings. Instrument, technician, and test-date checks only run when
+  those evidence columns were actually mapped.
+- The server reparses the submitted workbook and validates every confirmed
+  worksheet instead of trusting preview rows from the browser.
+- A new import replaces the current working dataset in one transaction instead
+  of appending duplicates. Matching reviewed findings and immutable report
+  versions are preserved.
+- Upload the original `.xlsx` source. PDF reports are deliberately rejected
+  because flattened pages cannot preserve cell identity reliably.
 
 ## Architecture
 

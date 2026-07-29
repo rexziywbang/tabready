@@ -77,6 +77,20 @@ ahu1.forEach((row, index) => {
 });
 ahu1[5].final = Math.round(ahu1[5].design * 1.15);
 ahu1[19].final = Math.round(ahu1[19].design * 0.88);
+const targetAhu1Total =
+  ahu1.reduce((sum, row) => sum + row.design, 0) * 0.94;
+const fixedAhu1Total = ahu1[5].final + ahu1[19].final;
+const regularAhu1Design = ahu1.reduce(
+  (sum, row, index) => (index === 5 || index === 19 ? sum : sum + row.design),
+  0,
+);
+const regularAhu1Factor =
+  (targetAhu1Total - fixedAhu1Total) / regularAhu1Design;
+ahu1.forEach((row, index) => {
+  if (index !== 5 && index !== 19) {
+    row.final = Math.round(row.design * regularAhu1Factor);
+  }
+});
 
 const targetAhu2Total =
   ahu2.reduce((sum, row) => sum + row.design, 0) * 0.92;

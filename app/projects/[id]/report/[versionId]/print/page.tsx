@@ -4,6 +4,7 @@ import { Printer } from "lucide-react";
 import { db } from "@/src/db/client";
 import { reportVersions } from "@/src/db/schema";
 import type { ReportSnapshot } from "@/src/report/assemble";
+import { numericValue, RULES_VERSION } from "@/src/rules/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,7 @@ const DISCLAIMER =
   "Readiness checks complete. This document does not constitute certification. A qualified certified professional is responsible for all measurements, conclusions, and approval.";
 
 function numeric(value: string | null): number | null {
-  if (!value) return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return numericValue(value);
 }
 
 function paginateFindings(
@@ -65,6 +64,10 @@ export default async function PrintReport({
     .limit(1);
   if (!report) notFound();
   const snapshot = JSON.parse(report.snapshotJson) as ReportSnapshot;
+  const rulesVersion =
+    [...new Set(snapshot.findings.map((finding) => finding.ruleVersion))].join(
+      ", ",
+    ) || RULES_VERSION;
   const allOutlets = snapshot.systems.flatMap((system) => system.outlets);
   const measurable = allOutlets.filter(
     (outlet) =>
@@ -137,7 +140,7 @@ export default async function PrintReport({
               </div>
               <div>
                 <dt>Readiness rule set</dt>
-                <dd>0.1.0</dd>
+                <dd>{rulesVersion}</dd>
               </div>
               <div>
                 <dt>Project tolerance</dt>

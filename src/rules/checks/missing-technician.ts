@@ -1,10 +1,20 @@
-import { cleanText, FindingDraft, RULES_VERSION, RuleOutlet } from "../types";
+import {
+  cleanText,
+  FindingDraft,
+  isFieldAvailable,
+  RULES_VERSION,
+  RuleOutlet,
+} from "../types";
 
 export function checkMissingTechnician(
   outlets: RuleOutlet[],
 ): FindingDraft[] {
   return outlets
-    .filter((outlet) => cleanText(outlet.technician) === "")
+    .filter(
+      (outlet) =>
+        isFieldAvailable(outlet, "technician") &&
+        cleanText(outlet.technician) === "",
+    )
     .map((outlet) => ({
       ruleId: "missing_technician",
       ruleVersion: RULES_VERSION,

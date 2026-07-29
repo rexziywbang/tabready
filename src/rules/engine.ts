@@ -66,6 +66,7 @@ export function filterNewFindings(
       !reviewed.has(
         findingIdentity({
           ruleId: draft.ruleId,
+          ruleVersion: draft.ruleVersion,
           outletId: draft.outletId,
           airSystemId: draft.airSystemId,
           inputsJson: stableJson(draft.inputs),
@@ -98,6 +99,7 @@ export async function runChecks(projectId: string): Promise<number> {
   const existing = await db
     .select({
       ruleId: findings.ruleId,
+      ruleVersion: findings.ruleVersion,
       outletId: findings.outletId,
       airSystemId: findings.airSystemId,
       inputsJson: findings.inputsJson,
@@ -115,6 +117,7 @@ export async function runChecks(projectId: string): Promise<number> {
       .map(({ outlet }, index): RuleOutlet => {
         const raw = JSON.parse(outlet.rawRowJson) as {
           __rowNumber?: number;
+          __mappedFields?: string[];
         };
         return {
           id: outlet.id,
@@ -127,6 +130,10 @@ export async function runChecks(projectId: string): Promise<number> {
           instrumentName: outlet.instrumentName,
           technician: outlet.technician,
           testDate: outlet.testDate,
+          remarks: outlet.remarks,
+          mappedFields: Array.isArray(raw.__mappedFields)
+            ? raw.__mappedFields
+            : undefined,
         };
       }),
   }));
@@ -135,6 +142,7 @@ export async function runChecks(projectId: string): Promise<number> {
     systems: ruleSystems,
     instruments: registry.map((instrument) => ({
       name: instrument.name,
+      serial: instrument.serial,
       calibrationDate: instrument.calibrationDate,
       calibrationIntervalMonths: instrument.calibrationIntervalMonths,
     })),

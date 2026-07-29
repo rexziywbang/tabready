@@ -1,6 +1,8 @@
 import {
   cleanText,
+  findRegisteredInstrument,
   FindingDraft,
+  isFieldAvailable,
   RULES_VERSION,
   RuleInstrument,
   RuleOutlet,
@@ -10,15 +12,14 @@ export function checkUnknownInstrument(
   outlets: RuleOutlet[],
   instruments: RuleInstrument[],
 ): FindingDraft[] {
-  const names = new Set(
-    instruments.map((instrument) =>
-      cleanText(instrument.name).toLocaleLowerCase(),
-    ),
-  );
   return outlets
     .filter((outlet) => {
-      const name = cleanText(outlet.instrumentName).toLocaleLowerCase();
-      return name !== "" && !names.has(name);
+      const name = cleanText(outlet.instrumentName);
+      return (
+        isFieldAvailable(outlet, "instrument_name") &&
+        name !== "" &&
+        !findRegisteredInstrument(name, instruments)
+      );
     })
     .map((outlet) => ({
       ruleId: "unknown_instrument",

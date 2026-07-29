@@ -10,7 +10,7 @@ const databasePath =
 
 fs.mkdirSync(path.dirname(databasePath), { recursive: true });
 
-const sqlite = new Database(databasePath);
+export const sqlite = new Database(databasePath);
 sqlite.pragma("foreign_keys = ON");
 sqlite.pragma("journal_mode = WAL");
 
